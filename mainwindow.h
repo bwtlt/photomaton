@@ -6,6 +6,7 @@
 #include <QThread>
 
 #include "videostream.h"
+#include "gpio.h"
 
 namespace Ui {
 class MainWindow;
@@ -25,15 +26,33 @@ private:
     Ui::MainWindow *ui;
     bool m_cameraRunning;
 
-    QThread *m_workerThread;
-    VideoStream *m_worker;
+    QThread *m_cameraWorkerThread;
+
+    VideoStream *m_cameraWorker;
 
     QImage m_image;
+
+    typedef enum {
+        STATE_OFF,
+        STATE_PREVIEW,
+        STATE_CAPTURESETTINGS,
+        STATE_FINAL
+    } State;
+
+    State m_currentState;
+
+private:
+    void captureImage();
+    void resumePreview();
 
 private slots:
     void handleImage(QImage &image);
     void cameraFinished();
-    void captureImage();
+
+    void okBtnPressed();
+    void cancelBtnPressed();
+    void leftBtnPressed();
+    void rightBtnPressed();
 };
 
 #endif // MAINWINDOW_H

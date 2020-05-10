@@ -3,12 +3,15 @@
 
 #include <QPixmap>
 #include <unistd.h>
+#include <QDebug>
+
+#include "imgprocessing.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_cameraRunning(false)
-
+    m_cameraRunning(false),
+    m_currentState(STATE_OFF)
 {
     ui->setupUi(this);
 }
@@ -20,28 +23,31 @@ MainWindow::~MainWindow()
 
 void MainWindow::startPreview()
 {
-    m_workerThread = new QThread;
-    m_worker = new VideoStream;
+    m_cameraWorkerThread = new QThread;
+    m_cameraWorker = new VideoStream;
 
-    m_worker->openCamera();
+    m_cameraWorker->openCamera();
 
     if (m_cameraRunning)
     {
         return;
     }
 
-    m_worker->moveToThread(m_workerThread);
+    m_cameraWorker->moveToThread(m_cameraWorkerThread);
 
-    connect(m_workerThread, SIGNAL(started()), m_worker, SLOT(grabImages()));
-    connect(m_worker, SIGNAL(finished()), m_workerThread, SLOT(quit()));
-    connect(m_worker, SIGNAL(finished()), m_worker, SLOT(deleteLater()));
-    connect(m_workerThread, SIGNAL(finished()), m_workerThread, SLOT(deleteLater()));
-    connect(m_worker, SIGNAL(finished()), this, SLOT(cameraFinished()));
-    connect(m_worker, SIGNAL(handleImage(QImage &)), this, SLOT(handleImage(QImage &)));
+    connect(m_cameraWorkerThread, SIGNAL(started()), m_cameraWorker, SLOT(grabImages()));
+    connect(m_cameraWorker, SIGNAL(finished()), m_cameraWorkerThread, SLOT(quit()));
+    connect(m_cameraWorker, SIGNAL(finished()), m_cameraWorker, SLOT(deleteLater()));
+    connect(m_cameraWorkerThread, SIGNAL(finished()), m_cameraWorkerThread, SLOT(deleteLater()));
+    connect(m_cameraWorker, SIGNAL(finished()), this, SLOT(cameraFinished()));
+    connect(m_cameraWorker, SIGNAL(handleImage(QImage &)), this, SLOT(handleImage(QImage &)));
 
-    connect(ui->okBtn, SIGNAL(clicked()), this, SLOT(captureImage()));
+    connect(&GPIO::Instance(), SIGNAL(okBtnPressed()), this, SLOT(okBtnPressed()));
+    connect(&GPIO::Instance(), SIGNAL(cancelBtnPressed()), this, SLOT(cancelBtnPressed()));
+    connect(&GPIO::Instance(), SIGNAL(leftBtnPressed()), this, SLOT(leftBtnPressed()));
+    connect(&GPIO::Instance(), SIGNAL(rightBtnPressed()), this, SLOT(rightBtnPressed()));
 
-    m_workerThread->start();
+    m_cameraWorkerThread->start();
 
     m_cameraRunning = true;
 
@@ -53,23 +59,31 @@ void MainWindow::startPreview()
     ui->leftBtn->setEnabled(false);
     ui->rightBtn->setEnabled(false);
 
+    GPIO::Instance().init();
+
     ui->helpText->setText("Appuyez sur le bouton pour prendre une photo");
+
+    m_currentState = STATE_PREVIEW;
 
 }
 
 void MainWindow::handleImage(QImage &image)
 {
-    ui->image->setPixmap(QPixmap::fromImage(image));
+    if (STATE_PREVIEW == m_currentState)
+    {
+        ui->image->setPixmap(QPixmap::fromImage(image));
 
-    m_image = image;
+        m_image = image;
 
-    QApplication::processEvents();
-    this->repaint();
+        QApplication::processEvents();
+        this->repaint();
+    }
 }
 
 void MainWindow::cameraFinished()
 {
     m_cameraRunning = false;
+    m_currentState = STATE_OFF;
 
     //disable buttons
 
@@ -78,13 +92,91 @@ void MainWindow::cameraFinished()
 
 void MainWindow::captureImage()
 {
-    m_worker->pause();
+    m_cameraWorker->pause();
+    QApplication::processEvents();
+    m_cameraRunning = false;
+    m_currentState = STATE_CAPTURESETTINGS;
+
+    m_image = ImgProcessing::toGray(m_image);
 
     ui->image->setPixmap(QPixmap::fromImage(m_image));
     this->repaint();
+}
 
-    sleep(3);
-
-    m_worker->resume();
+void MainWindow::resumePreview()
+{
+    m_cameraWorker->resume();
+    m_cameraRunning = true;
+    m_currentState = STATE_PREVIEW;
     QApplication::processEvents();
+}
+
+void MainWindow::okBtnPressed()
+{
+    switch(m_currentState)
+    {
+    case STATE_OFF:
+        break;
+    case STATE_PREVIEW:
+        captureImage();
+        break;
+    case STATE_CAPTURESETTINGS:
+        break;
+    case STATE_FINAL:
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::cancelBtnPressed()
+{
+    switch(m_currentState)
+    {
+    case STATE_OFF:
+        break;
+    case STATE_PREVIEW:
+        break;
+    case STATE_CAPTURESETTINGS:
+        resumePreview();
+        break;
+    case STATE_FINAL:
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::leftBtnPressed()
+{
+    switch(m_currentState)
+    {
+    case STATE_OFF:
+        break;
+    case STATE_PREVIEW:
+        break;
+    case STATE_CAPTURESETTINGS:
+        break;
+    case STATE_FINAL:
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::rightBtnPressed()
+{
+    switch(m_currentState)
+    {
+    case STATE_OFF:
+        break;
+    case STATE_PREVIEW:
+        break;
+    case STATE_CAPTURESETTINGS:
+        break;
+    case STATE_FINAL:
+        break;
+    default:
+        break;
+    }
 }

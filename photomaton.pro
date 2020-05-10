@@ -27,16 +27,23 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    videostream.cpp
+    videostream.cpp \
+    gpio.cpp \
+    imgprocessing.cpp
 
 HEADERS += \
         mainwindow.h \
-    videostream.h
+    videostream.h \
+    gpio.h \
+    imgprocessing.h
 
 FORMS += \
         mainwindow.ui
 
-LIBS += -lraspicam
+LIBS += -lraspicam \
+        -lwiringPi \
+        -lopencv_core \
+        -lopencv_imgproc
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

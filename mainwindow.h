@@ -28,9 +28,12 @@ private:
     QThread *m_workerThread;
     VideoStream *m_worker;
 
+    QImage m_image;
+
 private slots:
     void handleImage(QImage &image);
     void cameraFinished();
+    void captureImage();
 };
 
 #endif // MAINWINDOW_H

@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QPixmap>
+#include <unistd.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -37,19 +38,30 @@ void MainWindow::startPreview()
     connect(m_workerThread, SIGNAL(finished()), m_workerThread, SLOT(deleteLater()));
     connect(m_worker, SIGNAL(finished()), this, SLOT(cameraFinished()));
     connect(m_worker, SIGNAL(handleImage(QImage &)), this, SLOT(handleImage(QImage &)));
-    // todo connect buttons
+
+    connect(ui->okBtn, SIGNAL(clicked()), this, SLOT(captureImage()));
 
     m_workerThread->start();
 
     m_cameraRunning = true;
 
     // enable/disable buttons
+    ui->okBtn->setEnabled(true);
+    ui->backBtn->setEnabled(false);
+    ui->upBtn->setEnabled(false);
+    ui->downBtn->setEnabled(false);
+    ui->leftBtn->setEnabled(false);
+    ui->rightBtn->setEnabled(false);
+
+    ui->helpText->setText("Appuyez sur le bouton pour prendre une photo");
 
 }
 
 void MainWindow::handleImage(QImage &image)
 {
     ui->image->setPixmap(QPixmap::fromImage(image));
+
+    m_image = image;
 
     QApplication::processEvents();
     this->repaint();
@@ -61,5 +73,18 @@ void MainWindow::cameraFinished()
 
     //disable buttons
 
-    ui->image->setText("Camera Disabled");
+    ui->image->setText("Appareil photo désactivé");
+}
+
+void MainWindow::captureImage()
+{
+    m_worker->pause();
+
+    ui->image->setPixmap(QPixmap::fromImage(m_image));
+    this->repaint();
+
+    sleep(3);
+
+    m_worker->resume();
+    QApplication::processEvents();
 }

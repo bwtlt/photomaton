@@ -8,6 +8,9 @@
 
 #include <unistd.h>
 
+static unsigned int CAPTURE_WIDTH = 1280;
+static unsigned int CAPTURE_HEIGHT = 720;
+
 VideoStream::VideoStream() :
     m_running(false),
     m_pause(false)
@@ -31,6 +34,7 @@ bool VideoStream::openCamera()
     {
         sleep(3); // wait for camera to stabilize
         m_running = true;
+        m_camera.setCaptureSize(CAPTURE_WIDTH, CAPTURE_HEIGHT);
     }
 
     return status;
@@ -43,9 +47,7 @@ void VideoStream::grabImages()
         m_sync.lock();
         if(m_pause)
         {
-            qDebug() << "Thread paused";
             m_pauseCond.wait(&m_sync);
-            qDebug() << "Thread resumed";
         }
         m_sync.unlock();
 
@@ -84,4 +86,9 @@ void VideoStream::resume()
     m_pause = false;
     m_sync.unlock();
     m_pauseCond.wakeAll();
+}
+
+void VideoStream::setEffect(raspicam::RASPICAM_IMAGE_EFFECT effect)
+{
+    m_camera.setImageEffect(effect);
 }

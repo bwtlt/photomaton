@@ -17,6 +17,8 @@ public:
     void resume();
     void pause();
 
+    void setEffect(raspicam::RASPICAM_IMAGE_EFFECT effect);
+
 private:
     raspicam::RaspiCam m_camera;
     bool m_running;

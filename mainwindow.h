@@ -2,11 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QImage>
 #include <QThread>
 
 #include "videostream.h"
 #include "gpio.h"
+#include "image.h"
 
 namespace Ui {
 class MainWindow;
@@ -30,7 +30,7 @@ private:
 
     VideoStream *m_cameraWorker;
 
-    QImage m_image;
+    Image m_image;
 
     typedef enum {
         STATE_OFF,
@@ -44,6 +44,7 @@ private:
 private:
     void captureImage();
     void resumePreview();
+    void applyFilter();
 
 private slots:
     void handleImage(QImage &image);

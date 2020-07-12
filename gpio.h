@@ -15,13 +15,11 @@ public:
     static GPIO& Instance();
     bool init();
 
-private:
-    GPIO& operator= (const GPIO&) {}
-    GPIO (const GPIO&) {}
+    GPIO& operator= (const GPIO&) = delete;
+    GPIO (const GPIO&) = delete;
 
-    static GPIO m_instance;
+private:
     GPIO();
-    ~GPIO();
 
     static void okInterrupt (void);
     static void cancelInterrupt (void);

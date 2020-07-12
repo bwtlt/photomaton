@@ -2,19 +2,14 @@
 #include <wiringPi.h>
 #include <QDebug>
 
-GPIO GPIO::m_instance = GPIO();
-
 GPIO::GPIO()
-{
-}
-
-GPIO::~GPIO()
 {
 }
 
 GPIO& GPIO::Instance()
 {
-    return m_instance;
+    static GPIO instance;
+    return instance;
 }
 
 bool GPIO::init()
@@ -28,8 +23,8 @@ bool GPIO::init()
     // wirintPiISR
     wiringPiISR(BUTTON0, INT_EDGE_FALLING, &GPIO::okInterrupt);
     wiringPiISR(BUTTON1, INT_EDGE_FALLING, &GPIO::cancelInterrupt);
-    wiringPiISR(BUTTON2, INT_EDGE_FALLING, &GPIO::leftInterrupt);
-    wiringPiISR(BUTTON3, INT_EDGE_FALLING, &GPIO::rightInterrupt);
+    wiringPiISR(BUTTON2, INT_EDGE_FALLING, &GPIO::rightInterrupt);
+    wiringPiISR(BUTTON3, INT_EDGE_FALLING, &GPIO::leftInterrupt);
 
     return true;
 }

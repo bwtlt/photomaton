@@ -51,17 +51,10 @@ void MainWindow::startPreview()
 
     m_cameraRunning = true;
 
-    // enable/disable buttons
-    ui->okBtn->setEnabled(true);
-    ui->backBtn->setEnabled(false);
-    ui->upBtn->setEnabled(false);
-    ui->downBtn->setEnabled(false);
-    ui->leftBtn->setEnabled(false);
-    ui->rightBtn->setEnabled(false);
-
     GPIO::Instance().init();
 
     ui->helpText->setText("Appuyez sur le bouton pour prendre une photo");
+    ui->choicesGroupBox->setVisible(false);
 
     m_currentState = STATE_PREVIEW;
 
@@ -73,7 +66,7 @@ void MainWindow::handleImage(QImage &image)
     {
         ui->image->setPixmap(QPixmap::fromImage(image));
 
-        m_image = image;
+        m_image.setQImage(image);
 
         QApplication::processEvents();
         this->repaint();
@@ -97,9 +90,9 @@ void MainWindow::captureImage()
     m_cameraRunning = false;
     m_currentState = STATE_CAPTURESETTINGS;
 
-    m_image = ImgProcessing::toGray(m_image);
+    toGray(m_image);
+    ui->image->setPixmap(QPixmap::fromImage(m_image.getQImage()));
 
-    ui->image->setPixmap(QPixmap::fromImage(m_image));
     this->repaint();
 }
 
@@ -125,6 +118,7 @@ void MainWindow::okBtnPressed()
     case STATE_FINAL:
         break;
     default:
+        assert(false);
         break;
     }
 }
@@ -143,6 +137,7 @@ void MainWindow::cancelBtnPressed()
     case STATE_FINAL:
         break;
     default:
+        assert(false);
         break;
     }
 }
@@ -156,10 +151,12 @@ void MainWindow::leftBtnPressed()
     case STATE_PREVIEW:
         break;
     case STATE_CAPTURESETTINGS:
+	//todo apply previous filter
         break;
     case STATE_FINAL:
         break;
     default:
+        assert(false);
         break;
     }
 }
@@ -173,10 +170,12 @@ void MainWindow::rightBtnPressed()
     case STATE_PREVIEW:
         break;
     case STATE_CAPTURESETTINGS:
+	//todo apply next filter
         break;
     case STATE_FINAL:
         break;
     default:
+        assert(false);
         break;
     }
 }

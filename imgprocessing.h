@@ -2,16 +2,16 @@
 #define IMGPROCESSING_H
 
 #include <opencv2/core/core.hpp>
-#include <QImage>
+#include "image.h"
 
-class ImgProcessing
+typedef enum
 {
-public:
-    ImgProcessing();
-    ~ImgProcessing();
+    NONE,
+    BLACK_AND_WHITE,
+    SEPIA
+} eFilter ;
 
-    static QImage toGray(QImage& image);
-    static QImage toSepia(QImage& image);
-};
+void toGray(Image& image);
+void toSepia(Image& image);
 
 #endif // IMGPROCESSING_H

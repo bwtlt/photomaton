@@ -1,8 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QThread>
+#include <QtWidgets/QMainWindow>
+#include <QtCore/QThread>
 
 #include "videostream.h"
 #include "gpio.h"

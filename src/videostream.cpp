@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include <QDebug>
-#include <QApplication>
+#include <QtWidgets/QApplication>
 
 #include <unistd.h>
 

@@ -57,7 +57,7 @@ void VideoStream::grabImages()
         QImage image = QImage(m_imageBuffer,
                               static_cast<int>(m_camera.getWidth()),
                               static_cast<int>(m_camera.getHeight()),
-                              QImage::Format_RGB888).rgbSwapped();
+                              QImage::Format_RGB888);//.rgbSwapped();
 
         emit handleImage(image);
 

@@ -2,9 +2,9 @@
 
 #include <opencv2/imgproc.hpp>
 
-void toGray(Image& image)
+void toGray(Image& source, Image& destination)
 {
-    QImage qImg = image.getQImage();
+    QImage qImg = source.getQImage();
     cv::Mat input(qImg.height(), qImg.width(), CV_8UC3, static_cast<uchar*>(qImg.bits()), qImg.bytesPerLine());
 
     cv::Mat output;
@@ -13,16 +13,16 @@ void toGray(Image& image)
     QImage dest(static_cast<const uchar*>(output.data), output.cols, output.rows, output.step, QImage::Format_Grayscale8);
     dest.bits();
 
-    image.setQImage(dest);
+    destination.setQImage(dest);
 }
 
-void toSepia(Image& image)
+void toSepia(Image& source, Image& destination)
 {
-    QImage qImg = image.getQImage();
+    QImage qImg = source.getQImage();
     cv::Mat input(qImg.height(), qImg.width(), CV_8UC3, static_cast<uchar*>(qImg.bits()), qImg.bytesPerLine());
 
     QImage dest(static_cast<const uchar*>(input.data), input.cols, input.rows, input.step, QImage::Format_RGB888);
     dest.bits();
 
-    image.setQImage(dest);
+    destination.setQImage(dest);
 }

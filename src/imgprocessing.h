@@ -11,7 +11,7 @@ typedef enum
     SEPIA
 } eFilter ;
 
-void toGray(Image& image);
-void toSepia(Image& image);
+void toGray(Image& src, Image& dest);
+void toSepia(Image& src, Image& dest);
 
 #endif // IMGPROCESSING_H

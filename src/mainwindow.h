@@ -7,6 +7,7 @@
 #include "videostream.h"
 #include "gpio.h"
 #include "image.h"
+#include "imgprocessing.h"
 
 namespace Ui {
 class MainWindow;
@@ -31,6 +32,7 @@ private:
     VideoStream *m_cameraWorker;
 
     Image m_image;
+    Image m_rawImage;
 
     typedef enum {
         STATE_OFF,
@@ -44,7 +46,7 @@ private:
 private:
     void captureImage();
     void resumePreview();
-    void applyFilter();
+    void applyFilter(eFilter filter);
 
 private slots:
     void handleImage(QImage &image);

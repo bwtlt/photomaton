@@ -66,7 +66,7 @@ void MainWindow::handleImage(QImage &image)
     {
         ui->image->setPixmap(QPixmap::fromImage(image));
 
-        m_image.setQImage(image);
+        m_rawImage.setQImage(image);
 
         QApplication::processEvents();
         this->repaint();
@@ -90,8 +90,7 @@ void MainWindow::captureImage()
     m_cameraRunning = false;
     m_currentState = STATE_CAPTURESETTINGS;
 
-    toGray(m_image);
-    ui->image->setPixmap(QPixmap::fromImage(m_image.getQImage()));
+    ui->image->setPixmap(QPixmap::fromImage(m_rawImage.getQImage()));
 
     this->repaint();
 }
@@ -104,6 +103,24 @@ void MainWindow::resumePreview()
     QApplication::processEvents();
 }
 
+void MainWindow::applyFilter(eFilter filter)
+{
+    switch(filter)
+    {
+    case BLACK_AND_WHITE:
+	    toGray(m_rawImage, m_image);
+	    break;
+    case SEPIA:
+	    toSepia(m_rawImage, m_image);
+	    break;
+    default:
+	    break;
+    }
+    ui->image->setPixmap(QPixmap::fromImage(m_image.getQImage()));
+
+    this->repaint();
+}
+
 void MainWindow::okBtnPressed()
 {
     switch(m_currentState)
@@ -114,6 +131,7 @@ void MainWindow::okBtnPressed()
         captureImage();
         break;
     case STATE_CAPTURESETTINGS:
+	// todo validation
         break;
     case STATE_FINAL:
         break;
@@ -135,6 +153,7 @@ void MainWindow::cancelBtnPressed()
         resumePreview();
         break;
     case STATE_FINAL:
+	resumePreview();
         break;
     default:
         assert(false);
@@ -151,7 +170,7 @@ void MainWindow::leftBtnPressed()
     case STATE_PREVIEW:
         break;
     case STATE_CAPTURESETTINGS:
-	//todo apply previous filter
+	applyFilter(BLACK_AND_WHITE);
         break;
     case STATE_FINAL:
         break;
@@ -170,7 +189,7 @@ void MainWindow::rightBtnPressed()
     case STATE_PREVIEW:
         break;
     case STATE_CAPTURESETTINGS:
-	//todo apply next filter
+	applyFilter(SEPIA);
         break;
     case STATE_FINAL:
         break;

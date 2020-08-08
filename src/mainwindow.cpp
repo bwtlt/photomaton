@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_currentState(STATE_OFF)
 {
     ui->setupUi(this);
+    this->setWindowTitle("Photomaton");
 }
 
 MainWindow::~MainWindow()

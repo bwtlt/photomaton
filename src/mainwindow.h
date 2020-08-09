@@ -36,6 +36,7 @@ private:
 
     typedef enum {
         STATE_OFF,
+	STATE_SLIDESHOW,
         STATE_PREVIEW,
         STATE_CAPTURESETTINGS,
         STATE_FINAL
@@ -46,6 +47,7 @@ private:
 private:
     void captureImage();
     void resumePreview();
+    void startSlideShow();
     void applyFilter(eFilter filter);
 
 private slots:

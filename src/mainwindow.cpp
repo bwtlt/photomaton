@@ -15,6 +15,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowTitle("Photomaton");
+
+    ui->preview->setVisible(false);
+    ui->effect1->setVisible(false);
+    ui->effect2->setVisible(false);
+    ui->effect3->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -55,7 +60,6 @@ void MainWindow::startPreview()
     GPIO::Instance().init();
 
     ui->helpText->setText("Appuyez sur le bouton pour prendre une photo");
-    ui->choicesGroupBox->setVisible(false);
 
     m_currentState = STATE_PREVIEW;
 
@@ -93,6 +97,14 @@ void MainWindow::captureImage()
 
     ui->image->setPixmap(QPixmap::fromImage(m_rawImage.getQImage()));
 
+    ui->helpText->setText("Choisissez un effet :");
+    ui->effect1->setVisible(true);
+    ui->effect1->setPixmap(QPixmap::fromImage(QImage("/home/pi/photomaton2/misc/sepia_effect.png")));
+    ui->effect2->setVisible(true);
+    ui->effect2->setPixmap(QPixmap::fromImage(m_rawImage.getQImage()));
+    ui->effect3->setVisible(true);
+    ui->effect3->setPixmap(QPixmap::fromImage(QImage("/home/pi/photomaton2/misc/bw_effect.png")));
+
     this->repaint();
 }
 
@@ -101,7 +113,24 @@ void MainWindow::resumePreview()
     m_cameraWorker->resume();
     m_cameraRunning = true;
     m_currentState = STATE_PREVIEW;
+
+    ui->helpText->setText("Appuyez sur le bouton pour prendre une photo");
+    ui->preview->setVisible(false);
+    ui->effect1->setVisible(false);
+    ui->effect2->setVisible(false);
+    ui->effect3->setVisible(false);
+
     QApplication::processEvents();
+}
+
+void MainWindow::startSlideShow()
+{
+    m_currentState = STATE_SLIDESHOW;
+    ui->preview->setVisible(true);
+    ui->helpText->setText("Appuyez sur un bouton pour quitter le mode diaporama");
+    ui->effect1->setVisible(false);
+    ui->effect2->setVisible(false);
+    ui->effect3->setVisible(false);
 }
 
 void MainWindow::applyFilter(eFilter filter)
@@ -128,6 +157,9 @@ void MainWindow::okBtnPressed()
     {
     case STATE_OFF:
         break;
+    case STATE_SLIDESHOW:
+	resumePreview();
+        break;
     case STATE_PREVIEW:
         captureImage();
         break;
@@ -148,7 +180,11 @@ void MainWindow::cancelBtnPressed()
     {
     case STATE_OFF:
         break;
+    case STATE_SLIDESHOW:
+	resumePreview();
+        break;
     case STATE_PREVIEW:
+	startSlideShow();
         break;
     case STATE_CAPTURESETTINGS:
         resumePreview();
@@ -168,6 +204,9 @@ void MainWindow::leftBtnPressed()
     {
     case STATE_OFF:
         break;
+    case STATE_SLIDESHOW:
+	resumePreview();
+        break;
     case STATE_PREVIEW:
         break;
     case STATE_CAPTURESETTINGS:
@@ -186,6 +225,9 @@ void MainWindow::rightBtnPressed()
     switch(m_currentState)
     {
     case STATE_OFF:
+        break;
+    case STATE_SLIDESHOW:
+	resumePreview();
         break;
     case STATE_PREVIEW:
         break;

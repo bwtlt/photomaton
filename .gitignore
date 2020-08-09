@@ -1,3 +1,4 @@
 /build/
+/saved_images/
 *.pro.user
 **/*.swp

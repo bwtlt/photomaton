@@ -4,6 +4,7 @@
 #include <QPixmap>
 #include <unistd.h>
 #include <QDebug>
+#include <QtGui/QFontDatabase>
 
 #include "imgprocessing.h"
 
@@ -11,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_cameraRunning(false),
+    m_slideShowRunning(false),
     m_currentState(STATE_OFF)
 {
     ui->setupUi(this);
@@ -20,6 +22,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->effect1->setVisible(false);
     ui->effect2->setVisible(false);
     ui->effect3->setVisible(false);
+
+    int id = QFontDatabase::addApplicationFont("/home/pi/photomaton2/misc/CaviarDreams.ttf");
+    QString family = QFontDatabase::applicationFontFamilies(id).at(0);
+    font = QFont(family, 32);
+
+    ui->helpText->setFont(font);
 }
 
 MainWindow::~MainWindow()
@@ -30,9 +38,12 @@ MainWindow::~MainWindow()
 void MainWindow::startPreview()
 {
     m_cameraWorkerThread = new QThread;
+    m_slideShowWorkerThread = new QThread;
     m_cameraWorker = new VideoStream;
+    m_slideShowWorker = new SlideShow;
 
     m_cameraWorker->openCamera();
+    m_slideShowWorker->init();
 
     if (m_cameraRunning)
     {
@@ -46,7 +57,15 @@ void MainWindow::startPreview()
     connect(m_cameraWorker, SIGNAL(finished()), m_cameraWorker, SLOT(deleteLater()));
     connect(m_cameraWorkerThread, SIGNAL(finished()), m_cameraWorkerThread, SLOT(deleteLater()));
     connect(m_cameraWorker, SIGNAL(finished()), this, SLOT(cameraFinished()));
-    connect(m_cameraWorker, SIGNAL(handleImage(QImage &)), this, SLOT(handleImage(QImage &)));
+    connect(m_cameraWorker, SIGNAL(handleImage(QImage &)), this, SLOT(handleCameraImage(QImage &)));
+
+    m_slideShowWorker->moveToThread(m_slideShowWorkerThread);
+
+    connect(m_slideShowWorkerThread, SIGNAL(started()), m_slideShowWorker, SLOT(grabImages()));
+    connect(m_slideShowWorker, SIGNAL(finished()), m_slideShowWorkerThread, SLOT(quit()));
+    connect(m_slideShowWorker, SIGNAL(finished()), m_slideShowWorker, SLOT(deleteLater()));
+    connect(m_slideShowWorkerThread, SIGNAL(finished()), m_slideShowWorkerThread, SLOT(deleteLater()));
+    connect(m_slideShowWorker, SIGNAL(handleImage(QImage &)), this, SLOT(handleSSImage(QImage &)));
 
     connect(&GPIO::Instance(), SIGNAL(okBtnPressed()), this, SLOT(okBtnPressed()));
     connect(&GPIO::Instance(), SIGNAL(cancelBtnPressed()), this, SLOT(cancelBtnPressed()));
@@ -54,6 +73,7 @@ void MainWindow::startPreview()
     connect(&GPIO::Instance(), SIGNAL(rightBtnPressed()), this, SLOT(rightBtnPressed()));
 
     m_cameraWorkerThread->start();
+    m_slideShowWorkerThread->start();
 
     m_cameraRunning = true;
 
@@ -65,14 +85,31 @@ void MainWindow::startPreview()
 
 }
 
-void MainWindow::handleImage(QImage &image)
+void MainWindow::handleCameraImage(QImage &image)
 {
-    if (STATE_PREVIEW == m_currentState)
+    if (true == m_cameraRunning)
     {
-        ui->image->setPixmap(QPixmap::fromImage(image));
-
+        if (STATE_PREVIEW == m_currentState)
+        {
+            ui->image->setPixmap(QPixmap::fromImage(image));
+        }
+        else if (STATE_SLIDESHOW == m_currentState)
+        {
+            ui->preview->setPixmap(QPixmap::fromImage(image));
+        }
         m_rawImage.setQImage(image);
+        QApplication::processEvents();
+        this->repaint();
+    }
+}
 
+void MainWindow::handleSSImage(QImage &image)
+{
+    if (true == m_slideShowRunning)
+    {
+        qDebug() << __func__;
+        ui->image->setPixmap(QPixmap::fromImage(image));
+        m_rawImage.setQImage(image);
         QApplication::processEvents();
         this->repaint();
     }
@@ -96,14 +133,18 @@ void MainWindow::captureImage()
     m_currentState = STATE_CAPTURESETTINGS;
 
     ui->image->setPixmap(QPixmap::fromImage(m_rawImage.getQImage()));
+    m_image = m_rawImage;
 
-    ui->helpText->setText("Choisissez un effet :");
-    ui->effect1->setVisible(true);
+    ui->helpText->setText("Choisissez un effet et validez");
+
     ui->effect1->setPixmap(QPixmap::fromImage(QImage("/home/pi/photomaton2/misc/sepia_effect.png")));
-    ui->effect2->setVisible(true);
     ui->effect2->setPixmap(QPixmap::fromImage(m_rawImage.getQImage()));
-    ui->effect3->setVisible(true);
+    ui->effect2->setScaledContents(true);
     ui->effect3->setPixmap(QPixmap::fromImage(QImage("/home/pi/photomaton2/misc/bw_effect.png")));
+
+    ui->effect1->setVisible(true);
+    ui->effect2->setVisible(true);
+    ui->effect3->setVisible(true);
 
     this->repaint();
 }
@@ -112,6 +153,8 @@ void MainWindow::resumePreview()
 {
     m_cameraWorker->resume();
     m_cameraRunning = true;
+    m_slideShowWorker->resume();
+    m_slideShowRunning = false;
     m_currentState = STATE_PREVIEW;
 
     ui->helpText->setText("Appuyez sur le bouton pour prendre une photo");
@@ -125,9 +168,15 @@ void MainWindow::resumePreview()
 
 void MainWindow::startSlideShow()
 {
+    m_cameraWorker->resume();
+    m_cameraRunning = true;
+
+    m_slideShowWorker->resume();
+    m_slideShowRunning = true;
+
     m_currentState = STATE_SLIDESHOW;
     ui->preview->setVisible(true);
-    ui->helpText->setText("Appuyez sur un bouton pour quitter le mode diaporama");
+    ui->helpText->setText("Appuyez sur un bouton\npour quitter le mode diaporama");
     ui->effect1->setVisible(false);
     ui->effect2->setVisible(false);
     ui->effect3->setVisible(false);
@@ -151,6 +200,13 @@ void MainWindow::applyFilter(eFilter filter)
     this->repaint();
 }
 
+void MainWindow::saveImage()
+{
+    m_image.save();
+
+    resumePreview();
+}
+
 void MainWindow::okBtnPressed()
 {
     switch(m_currentState)
@@ -158,13 +214,13 @@ void MainWindow::okBtnPressed()
     case STATE_OFF:
         break;
     case STATE_SLIDESHOW:
-	resumePreview();
+        resumePreview();
         break;
     case STATE_PREVIEW:
         captureImage();
         break;
     case STATE_CAPTURESETTINGS:
-	// todo validation
+        saveImage();
         break;
     case STATE_FINAL:
         break;
@@ -181,16 +237,16 @@ void MainWindow::cancelBtnPressed()
     case STATE_OFF:
         break;
     case STATE_SLIDESHOW:
-	resumePreview();
+        resumePreview();
         break;
     case STATE_PREVIEW:
-	startSlideShow();
+        startSlideShow();
         break;
     case STATE_CAPTURESETTINGS:
         resumePreview();
         break;
     case STATE_FINAL:
-	resumePreview();
+        resumePreview();
         break;
     default:
         assert(false);
@@ -205,12 +261,12 @@ void MainWindow::leftBtnPressed()
     case STATE_OFF:
         break;
     case STATE_SLIDESHOW:
-	resumePreview();
+        resumePreview();
         break;
     case STATE_PREVIEW:
         break;
     case STATE_CAPTURESETTINGS:
-	applyFilter(BLACK_AND_WHITE);
+        applyFilter(BLACK_AND_WHITE);
         break;
     case STATE_FINAL:
         break;
@@ -227,12 +283,12 @@ void MainWindow::rightBtnPressed()
     case STATE_OFF:
         break;
     case STATE_SLIDESHOW:
-	resumePreview();
+        resumePreview();
         break;
     case STATE_PREVIEW:
         break;
     case STATE_CAPTURESETTINGS:
-	applyFilter(SEPIA);
+        applyFilter(SEPIA);
         break;
     case STATE_FINAL:
         break;

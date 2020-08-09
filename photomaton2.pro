@@ -24,10 +24,13 @@ HEADERS += src/gpio.h \
            src/image.h \
            src/imgprocessing.h \
            src/mainwindow.h \
-           src/videostream.h
+           src/videostream.h \
+           src/slideshow.h
 FORMS += src/mainwindow.ui
 SOURCES += src/gpio.cpp \
            src/imgprocessing.cpp \
+           src/image.cpp \
            src/main.cpp \
            src/mainwindow.cpp \
-           src/videostream.cpp
+           src/videostream.cpp \
+           src/slideshow.cpp

@@ -21,6 +21,8 @@ public:
 private:
     GPIO();
 
+    static unsigned int millis (void);
+
     static void okInterrupt (void);
     static void cancelInterrupt (void);
     static void leftInterrupt (void);

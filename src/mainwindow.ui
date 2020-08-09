@@ -18,6 +18,21 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">
@@ -58,6 +73,9 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="previewHLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QLabel" name="preview">
           <property name="enabled">
@@ -124,14 +142,26 @@ color: rgb(255, 255, 255);</string>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="effectsHLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QLabel" name="effect1">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>190</height>
+           </size>
+          </property>
           <property name="text">
            <string>Effet 1</string>
           </property>
@@ -142,6 +172,12 @@ color: rgb(255, 255, 255);</string>
         </item>
         <item>
          <widget class="QLabel" name="effect2">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>190</height>
+           </size>
+          </property>
           <property name="text">
            <string>Effet 2</string>
           </property>
@@ -152,6 +188,12 @@ color: rgb(255, 255, 255);</string>
         </item>
         <item>
          <widget class="QLabel" name="effect3">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>190</height>
+           </size>
+          </property>
           <property name="text">
            <string>Effet 3</string>
           </property>

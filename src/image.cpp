@@ -1,7 +1,8 @@
 #include "image.h"
+
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
-#include <QDebug>
+#include <QtCore/QDebug>
 
 
 void Image::save()

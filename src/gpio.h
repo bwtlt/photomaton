@@ -1,7 +1,7 @@
 #ifndef GPIO_H
 #define GPIO_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 static const int BUTTON0 = 14;
 static const int BUTTON1 = 15;

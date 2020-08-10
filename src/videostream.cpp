@@ -1,11 +1,10 @@
 #include "videostream.h"
 
-#include <fstream>
-#include <iostream>
-
-#include <QDebug>
+#include <QtCore/QDebug>
 #include <QtWidgets/QApplication>
 
+#include <fstream>
+#include <iostream>
 #include <unistd.h>
 
 static unsigned int CAPTURE_WIDTH = 1280;

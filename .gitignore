@@ -2,3 +2,4 @@
 /saved_images/
 *.pro.user
 **/*.swp
+.vscode/c_cpp_properties.json

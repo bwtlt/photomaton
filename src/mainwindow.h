@@ -1,14 +1,14 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtWidgets/QMainWindow>
-#include <QtCore/QThread>
-
 #include "videostream.h"
 #include "slideshow.h"
 #include "gpio.h"
 #include "image.h"
 #include "imgprocessing.h"
+
+#include <QtWidgets/QMainWindow>
+#include <QtCore/QThread>
 
 namespace Ui {
 class MainWindow;

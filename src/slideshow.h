@@ -1,9 +1,9 @@
 #ifndef SLIDESHOW_H
 #define SLIDESHOW_H
 
-#include <QImage>
-#include <QMutex>
-#include <QWaitCondition>
+#include <QtCore/QMutex>
+#include <QtCore/QWaitCondition>
+#include <QtGui/QImage>
 
 class SlideShow : public QObject
 {

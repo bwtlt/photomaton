@@ -1,6 +1,8 @@
 #include "gpio.h"
+
 #include <wiringPi.h>
-#include <QDebug>
+#include <QtCore/QDebug>
+
 #include <sys/time.h>
 
 unsigned int last_interrupt_time = 0;

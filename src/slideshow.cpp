@@ -1,13 +1,12 @@
 #include "slideshow.h"
 #include "image.h"
 
+#include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtWidgets/QApplication>
+
 #include <fstream>
 #include <iostream>
-
-#include <QDebug>
-#include <QtWidgets/QApplication>
-#include <QtCore/QDir>
-
 #include <unistd.h>
 
 SlideShow::SlideShow() :

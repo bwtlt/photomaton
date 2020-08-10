@@ -1,8 +1,9 @@
 #ifndef IMGPROCESSING_H
 #define IMGPROCESSING_H
 
-#include <opencv2/core/core.hpp>
 #include "image.h"
+
+#include <opencv2/core/core.hpp>
 
 typedef enum
 {

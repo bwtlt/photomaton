@@ -1,12 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "imgprocessing.h"
 
-#include <QPixmap>
-#include <unistd.h>
-#include <QDebug>
+#include <QtGui/QPixmap>
+#include <QtCore/QDebug>
 #include <QtGui/QFontDatabase>
 
-#include "imgprocessing.h"
+#include <unistd.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),

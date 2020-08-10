@@ -2,9 +2,9 @@
 #define VIDEOSTREAM_H
 
 #include <raspicam/raspicam.h>
-#include <QImage>
-#include <QMutex>
-#include <QWaitCondition>
+#include <QtGui/QImage>
+#include <QtGui/QMutex>
+#include <QtCore/QWaitCondition>
 
 class VideoStream : public QObject
 {

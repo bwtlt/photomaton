@@ -1,7 +1,7 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <QImage>
+#include <QtGui/QImage>
 
 static const QString SAVE_FOLDER("/home/pi/photomaton2/saved_images");
 

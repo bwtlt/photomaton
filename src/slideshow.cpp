@@ -22,6 +22,7 @@ SlideShow::~SlideShow()
 
 bool SlideShow::init()
 {
+    qDebug() << Q_FUNC_INFO;
     m_running = false;
 
     return true;
@@ -29,7 +30,6 @@ bool SlideShow::init()
 
 void SlideShow::grabImages()
 {
-    qDebug() << __func__;
     QDir directory(SAVE_FOLDER);
     directory.setNameFilters(QStringList()<<"*.png");
     m_imagesList = directory.entryList();
@@ -37,7 +37,6 @@ void SlideShow::grabImages()
 
     while(m_running)
     {
-        qDebug() << "running";
         m_sync.lock();
         if(m_pause)
         {
@@ -47,7 +46,6 @@ void SlideShow::grabImages()
 
         if (false ==  m_imagesList.isEmpty())
         {
-            qDebug() << "loading image" << *it;
             QImage image = QImage(SAVE_FOLDER + "/" + *it);
 
             emit handleImage(image);
@@ -55,7 +53,7 @@ void SlideShow::grabImages()
             ++it;
             if (m_imagesList.constEnd() == it)
             {
-                qDebug() << "reached end of list";
+                qDebug() << Q_FUNC_INFO << "reached end of list";
                 it = m_imagesList.constBegin();
             }
         }
@@ -66,6 +64,7 @@ void SlideShow::grabImages()
 
 void SlideShow::stopGrabbing()
 {
+    qDebug() << Q_FUNC_INFO;
     m_running = false;
 
     emit finished();
@@ -73,6 +72,7 @@ void SlideShow::stopGrabbing()
 
 void SlideShow::pause()
 {
+    qDebug() << Q_FUNC_INFO;
     m_sync.lock();
     m_pause = true;
     m_sync.unlock();
@@ -80,6 +80,7 @@ void SlideShow::pause()
 
 void SlideShow::resume()
 {
+    qDebug() << Q_FUNC_INFO;
     m_sync.lock();
     m_pause = false;
     m_running = true;
@@ -89,5 +90,7 @@ void SlideShow::resume()
 
 void SlideShow::addImageToList(const QString& filename)
 {
+    qDebug() << Q_FUNC_INFO << "Filename:" << filename;
     m_imagesList.append(filename);
+    qDebug() << Q_FUNC_INFO << "List size:" << QString(m_imagesList.size());
 }

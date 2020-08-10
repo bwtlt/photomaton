@@ -22,7 +22,7 @@ bool GPIO::init()
 {
     if (0 != wiringPiSetupSys())
     {
-        qDebug() << "Error in GPIO init";
+        qDebug() << Q_FUNC_INFO << "Error in GPIO init";
         return false;
     }
 
@@ -44,44 +44,44 @@ bool GPIO::init()
 void GPIO::okInterrupt()
 {
     unsigned int interrupt_time = millis();
-    qDebug() << __func__ << interrupt_time;
+    qDebug() << Q_FUNC_INFO << "at" << interrupt_time << "ms";
     if (interrupt_time - last_interrupt_time > 200)
         emit GPIO::Instance().okBtnPressed();
     else
-	qDebug() << "ignored interrupt";
+	    qDebug() << Q_FUNC_INFO << "ignored interrupt";
     last_interrupt_time = interrupt_time;
 }
 
 void GPIO::cancelInterrupt()
 {
     unsigned int interrupt_time = millis();
-    qDebug() << __func__ << interrupt_time;
+    qDebug() << Q_FUNC_INFO << "at" << interrupt_time << "ms";
     if (interrupt_time - last_interrupt_time > 200)
-	emit GPIO::Instance().cancelBtnPressed();
+	    emit GPIO::Instance().cancelBtnPressed();
     else
-	qDebug() << "ignored interrupt";
+	    qDebug() << Q_FUNC_INFO << "ignored interrupt";
     last_interrupt_time = interrupt_time;
 }
 
 void GPIO::leftInterrupt()
 {
     unsigned int interrupt_time = millis();
-    qDebug() << __func__ << interrupt_time;
+    qDebug() << Q_FUNC_INFO << "at" << interrupt_time << "ms";
     if (interrupt_time - last_interrupt_time > 200)
-	emit GPIO::Instance().leftBtnPressed();
+	    emit GPIO::Instance().leftBtnPressed();
     else
-	qDebug() << "ignored interrupt";
+	    qDebug() << Q_FUNC_INFO << "ignored interrupt";
     last_interrupt_time = interrupt_time;
 }
 
 void GPIO::rightInterrupt()
 {
     unsigned int interrupt_time = millis();
-    qDebug() << __func__ << interrupt_time;
+    qDebug() << Q_FUNC_INFO << "at" << interrupt_time << "ms";
     if (interrupt_time - last_interrupt_time > 200)
         emit GPIO::Instance().rightBtnPressed();
     else
-	qDebug() << "ignored interrupt";
+	    qDebug() << Q_FUNC_INFO << "ignored interrupt";
     last_interrupt_time = interrupt_time;
 }
 

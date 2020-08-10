@@ -35,14 +35,18 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::startPreview()
+void MainWindow::startPhotomaton()
 {
+    qDebug() << Q_FUNC_INFO;
     m_cameraWorkerThread = new QThread;
     m_slideShowWorkerThread = new QThread;
     m_cameraWorker = new VideoStream;
     m_slideShowWorker = new SlideShow;
 
-    m_cameraWorker->openCamera();
+    if (true != m_cameraWorker->openCamera())
+    {
+        assert(false);
+    }
     m_slideShowWorker->init();
 
     if (m_cameraRunning)
@@ -107,7 +111,6 @@ void MainWindow::handleSSImage(QImage &image)
 {
     if (true == m_slideShowRunning)
     {
-        qDebug() << __func__;
         ui->image->setPixmap(QPixmap::fromImage(image));
         m_rawImage.setQImage(image);
         QApplication::processEvents();
@@ -117,6 +120,7 @@ void MainWindow::handleSSImage(QImage &image)
 
 void MainWindow::cameraFinished()
 {
+    qDebug() << Q_FUNC_INFO;
     m_cameraRunning = false;
     m_currentState = STATE_OFF;
 
@@ -127,6 +131,7 @@ void MainWindow::cameraFinished()
 
 void MainWindow::captureImage()
 {
+    qDebug() << Q_FUNC_INFO;
     m_cameraWorker->pause();
     QApplication::processEvents();
     m_cameraRunning = false;
@@ -151,6 +156,7 @@ void MainWindow::captureImage()
 
 void MainWindow::resumePreview()
 {
+    qDebug() << Q_FUNC_INFO;
     m_cameraWorker->resume();
     m_cameraRunning = true;
     m_slideShowWorker->resume();
@@ -168,6 +174,7 @@ void MainWindow::resumePreview()
 
 void MainWindow::startSlideShow()
 {
+    qDebug() << Q_FUNC_INFO;
     m_cameraWorker->resume();
     m_cameraRunning = true;
 
@@ -184,6 +191,7 @@ void MainWindow::startSlideShow()
 
 void MainWindow::applyFilter(eFilter filter)
 {
+    qDebug() << Q_FUNC_INFO << "Filter:" << QString(filter);
     switch(filter)
     {
     case BLACK_AND_WHITE:
@@ -202,6 +210,7 @@ void MainWindow::applyFilter(eFilter filter)
 
 void MainWindow::saveImage()
 {
+    qDebug() << Q_FUNC_INFO;
     m_image.save();
 
     resumePreview();
@@ -209,6 +218,7 @@ void MainWindow::saveImage()
 
 void MainWindow::okBtnPressed()
 {
+    qDebug() << Q_FUNC_INFO << "in state" << QString(m_currentState);
     switch(m_currentState)
     {
     case STATE_OFF:
@@ -232,6 +242,7 @@ void MainWindow::okBtnPressed()
 
 void MainWindow::cancelBtnPressed()
 {
+    qDebug() << Q_FUNC_INFO << "in state" << QString(m_currentState);
     switch(m_currentState)
     {
     case STATE_OFF:
@@ -256,6 +267,7 @@ void MainWindow::cancelBtnPressed()
 
 void MainWindow::leftBtnPressed()
 {
+    qDebug() << Q_FUNC_INFO << "in state" << QString(m_currentState);
     switch(m_currentState)
     {
     case STATE_OFF:
@@ -278,6 +290,7 @@ void MainWindow::leftBtnPressed()
 
 void MainWindow::rightBtnPressed()
 {
+    qDebug() << Q_FUNC_INFO << "in state" << QString(m_currentState);
     switch(m_currentState)
     {
     case STATE_OFF:

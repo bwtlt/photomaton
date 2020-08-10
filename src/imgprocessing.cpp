@@ -4,6 +4,7 @@
 
 void toGray(Image& source, Image& destination)
 {
+    qDebug() << Q_FUNC_INFO;
     QImage qImg = source.getQImage();
     cv::Mat input(qImg.height(), qImg.width(), CV_8UC3, static_cast<uchar*>(qImg.bits()), qImg.bytesPerLine());
 
@@ -18,6 +19,7 @@ void toGray(Image& source, Image& destination)
 
 void toSepia(Image& source, Image& destination)
 {
+    qDebug() << Q_FUNC_INFO;
     QImage qImg = source.getQImage();
     cv::Mat input(qImg.height(), qImg.width(), CV_8UC3, static_cast<uchar*>(qImg.bits()), qImg.bytesPerLine());
 

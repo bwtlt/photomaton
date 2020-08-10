@@ -24,16 +24,18 @@ VideoStream::~VideoStream()
 
 bool VideoStream::openCamera()
 {
+    qDebug() << Q_FUNC_INFO << "Opening camera...";
     bool status = m_camera.open();
     if (!status)
     {
-        qDebug() << "Error opening camera";
+        qDebug() << Q_FUNC_INFO << "Error opening camera";
     }
     else
     {
         sleep(3); // wait for camera to stabilize
         m_running = true;
         m_camera.setCaptureSize(CAPTURE_WIDTH, CAPTURE_HEIGHT);
+        qDebug() << Q_FUNC_INFO << "Camera opened";
     }
 
     return status;
@@ -67,13 +69,14 @@ void VideoStream::grabImages()
 
 void VideoStream::stopGrabbing()
 {
+    qDebug() << Q_FUNC_INFO;
     m_running = false;
-
     emit finished();
 }
 
 void VideoStream::pause()
 {
+    qDebug() << Q_FUNC_INFO;
     m_sync.lock();
     m_pause = true;
     m_sync.unlock();
@@ -81,6 +84,7 @@ void VideoStream::pause()
 
 void VideoStream::resume()
 {
+    qDebug() << Q_FUNC_INFO;
     m_sync.lock();
     m_pause = false;
     m_sync.unlock();
@@ -89,5 +93,6 @@ void VideoStream::resume()
 
 void VideoStream::setEffect(raspicam::RASPICAM_IMAGE_EFFECT effect)
 {
+    qDebug() << Q_FUNC_INFO << "Effect:" << QString(effect);
     m_camera.setImageEffect(effect);
 }

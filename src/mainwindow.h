@@ -22,7 +22,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void startPreview();
+    void startPhotomaton();
 
 private:
     Ui::MainWindow *ui;

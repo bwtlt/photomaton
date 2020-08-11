@@ -31,10 +31,9 @@ private:
     bool m_slideShowRunning;
 
     QThread *m_cameraWorkerThread;
-    QThread *m_slideShowWorkerThread;
 
     VideoStream *m_cameraWorker;
-    SlideShow *m_slideShowWorker;
+    SlideShow *m_slideShow;
 
     Image m_image;
     Image m_rawImage;

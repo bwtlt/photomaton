@@ -25,7 +25,8 @@ HEADERS += src/gpio.h \
            src/imgprocessing.h \
            src/mainwindow.h \
            src/videostream.h \
-           src/slideshow.h
+           src/slideshow.h \
+           src/utils.h
 FORMS += src/mainwindow.ui
 SOURCES += src/gpio.cpp \
            src/imgprocessing.cpp \
@@ -33,4 +34,5 @@ SOURCES += src/gpio.cpp \
            src/main.cpp \
            src/mainwindow.cpp \
            src/videostream.cpp \
-           src/slideshow.cpp
+           src/slideshow.cpp \
+           src/utils.cpp

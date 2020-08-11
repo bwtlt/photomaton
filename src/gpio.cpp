@@ -1,9 +1,9 @@
 #include "gpio.h"
 
+#include "utils.h"
+
 #include <wiringPi.h>
 #include <QtCore/QDebug>
-
-#include <sys/time.h>
 
 unsigned int last_interrupt_time = 0;
 static uint64_t epochMilli;
@@ -32,10 +32,7 @@ bool GPIO::init()
     wiringPiISR(BUTTON2, INT_EDGE_FALLING, &GPIO::rightInterrupt);
     wiringPiISR(BUTTON3, INT_EDGE_FALLING, &GPIO::leftInterrupt);
 
-    struct timeval tv;
-
-    gettimeofday(&tv, NULL);
-    epochMilli = (uint64_t)tv.tv_sec * (uint64_t)1000 + (uint64_t)(tv.tv_usec / 1000);
+    epochMilli = getTimeInMillis();
     last_interrupt_time = epochMilli;
 
     return true;
@@ -43,7 +40,7 @@ bool GPIO::init()
 
 void GPIO::okInterrupt()
 {
-    unsigned int interrupt_time = millis();
+    unsigned int interrupt_time = getTimeInMillis();
     qDebug() << Q_FUNC_INFO << "at" << interrupt_time << "ms";
     if (interrupt_time - last_interrupt_time > 200)
         emit GPIO::Instance().okBtnPressed();
@@ -54,7 +51,7 @@ void GPIO::okInterrupt()
 
 void GPIO::cancelInterrupt()
 {
-    unsigned int interrupt_time = millis();
+    unsigned int interrupt_time = getTimeInMillis();
     qDebug() << Q_FUNC_INFO << "at" << interrupt_time << "ms";
     if (interrupt_time - last_interrupt_time > 200)
 	    emit GPIO::Instance().cancelBtnPressed();
@@ -65,7 +62,7 @@ void GPIO::cancelInterrupt()
 
 void GPIO::leftInterrupt()
 {
-    unsigned int interrupt_time = millis();
+    unsigned int interrupt_time = getTimeInMillis();
     qDebug() << Q_FUNC_INFO << "at" << interrupt_time << "ms";
     if (interrupt_time - last_interrupt_time > 200)
 	    emit GPIO::Instance().leftBtnPressed();
@@ -76,7 +73,7 @@ void GPIO::leftInterrupt()
 
 void GPIO::rightInterrupt()
 {
-    unsigned int interrupt_time = millis();
+    unsigned int interrupt_time = getTimeInMillis();
     qDebug() << Q_FUNC_INFO << "at" << interrupt_time << "ms";
     if (interrupt_time - last_interrupt_time > 200)
         emit GPIO::Instance().rightBtnPressed();
@@ -85,13 +82,3 @@ void GPIO::rightInterrupt()
     last_interrupt_time = interrupt_time;
 }
 
-unsigned int GPIO::millis(void)
-{
-    struct timeval tv;
-    uint64_t now;
-
-    gettimeofday(&tv, NULL);
-    now = (uint64_t)tv.tv_sec * (uint64_t)1000 + (uint64_t)(tv.tv_usec / 1000);
-
-    return (uint32_t)(now - epochMilli);
-}

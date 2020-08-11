@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "imgprocessing.h"
+#include "utils.h"
 
 #include <QtGui/QPixmap>
 #include <QtCore/QDebug>
@@ -39,15 +40,14 @@ void MainWindow::startPhotomaton()
 {
     qDebug() << Q_FUNC_INFO;
     m_cameraWorkerThread = new QThread;
-    m_slideShowWorkerThread = new QThread;
     m_cameraWorker = new VideoStream;
-    m_slideShowWorker = new SlideShow;
+    m_slideShow = new SlideShow;
 
     if (true != m_cameraWorker->openCamera())
     {
         assert(false);
     }
-    m_slideShowWorker->init();
+    m_slideShow->init();
 
     if (m_cameraRunning)
     {
@@ -63,13 +63,8 @@ void MainWindow::startPhotomaton()
     connect(m_cameraWorker, SIGNAL(finished()), this, SLOT(cameraFinished()));
     connect(m_cameraWorker, SIGNAL(handleImage(QImage &)), this, SLOT(handleCameraImage(QImage &)));
 
-    m_slideShowWorker->moveToThread(m_slideShowWorkerThread);
-
-    connect(m_slideShowWorkerThread, SIGNAL(started()), m_slideShowWorker, SLOT(grabImages()));
-    connect(m_slideShowWorker, SIGNAL(finished()), m_slideShowWorkerThread, SLOT(quit()));
-    connect(m_slideShowWorker, SIGNAL(finished()), m_slideShowWorker, SLOT(deleteLater()));
-    connect(m_slideShowWorkerThread, SIGNAL(finished()), m_slideShowWorkerThread, SLOT(deleteLater()));
-    connect(m_slideShowWorker, SIGNAL(handleImage(QImage &)), this, SLOT(handleSSImage(QImage &)));
+    connect(m_slideShow, SIGNAL(finished()), m_slideShow, SLOT(deleteLater()));
+    connect(m_slideShow, SIGNAL(handleImage(QImage &)), this, SLOT(handleSSImage(QImage &)));
 
     connect(&GPIO::Instance(), SIGNAL(okBtnPressed()), this, SLOT(okBtnPressed()));
     connect(&GPIO::Instance(), SIGNAL(cancelBtnPressed()), this, SLOT(cancelBtnPressed()));
@@ -77,9 +72,9 @@ void MainWindow::startPhotomaton()
     connect(&GPIO::Instance(), SIGNAL(rightBtnPressed()), this, SLOT(rightBtnPressed()));
 
     m_cameraWorkerThread->start();
-    m_slideShowWorkerThread->start();
 
     m_cameraRunning = true;
+    m_slideShowRunning = false;
 
     GPIO::Instance().init();
 
@@ -159,7 +154,7 @@ void MainWindow::resumePreview()
     qDebug() << Q_FUNC_INFO;
     m_cameraWorker->resume();
     m_cameraRunning = true;
-    m_slideShowWorker->resume();
+    m_slideShow->resume();
     m_slideShowRunning = false;
     m_currentState = STATE_PREVIEW;
 
@@ -178,7 +173,7 @@ void MainWindow::startSlideShow()
     m_cameraWorker->resume();
     m_cameraRunning = true;
 
-    m_slideShowWorker->resume();
+    m_slideShow->resume();
     m_slideShowRunning = true;
 
     m_currentState = STATE_SLIDESHOW;
@@ -212,6 +207,7 @@ void MainWindow::saveImage()
 {
     qDebug() << Q_FUNC_INFO;
     m_image.save();
+    m_slideShow->addImageToList(m_image.getSavePath());
 
     resumePreview();
 }

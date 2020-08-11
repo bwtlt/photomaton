@@ -17,4 +17,5 @@ void Image::save()
     QString filename( SAVE_FOLDER + "/" + QDateTime::currentDateTime().toString("ddMMyy_hhmmss") + ".png");
     qDebug() << Q_FUNC_INFO << "save image" << filename;
     assert(m_qImage.save(filename));
+    m_savePath = filename;
 }

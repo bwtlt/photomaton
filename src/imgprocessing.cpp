@@ -1,6 +1,7 @@
 #include "imgprocessing.h"
 
 #include <opencv2/imgproc.hpp>
+#include <QtCore/QDebug>
 
 void toGray(Image& source, Image& destination)
 {

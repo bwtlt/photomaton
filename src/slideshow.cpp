@@ -1,8 +1,10 @@
 #include "slideshow.h"
 #include "image.h"
+#include "utils.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QTime>
 #include <QtWidgets/QApplication>
 
 #include <fstream>
@@ -24,41 +26,36 @@ bool SlideShow::init()
 {
     qDebug() << Q_FUNC_INFO;
     m_running = false;
+    m_timer = new QTimer(this);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(grabImages()));
 
+    QDir directory(SAVE_FOLDER);
+    directory.setNameFilters(QStringList()<<"*.png");
+    m_imagesList = directory.entryList();
+    qDebug() << Q_FUNC_INFO << QString::number(m_imagesList.size()) << "images in slideshow";
+
+    m_imageIt = m_imagesList.constBegin();
+
+    m_timer->start(2000);
     return true;
 }
 
 void SlideShow::grabImages()
 {
-    QDir directory(SAVE_FOLDER);
-    directory.setNameFilters(QStringList()<<"*.png");
-    m_imagesList = directory.entryList();
-    QStringList::ConstIterator it = m_imagesList.constBegin();
-
-    while(m_running)
+    if (false ==  m_imagesList.isEmpty() && true == m_running)
     {
-        m_sync.lock();
-        if(m_pause)
+        qDebug() << Q_FUNC_INFO << "display image" << QString(*m_imageIt);
+        QImage image = QImage(SAVE_FOLDER + "/" + *m_imageIt);
+
+        emit handleImage(image);
+
+        ++m_imageIt;
+        if (m_imagesList.constEnd() == m_imageIt)
         {
-            m_pauseCond.wait(&m_sync);
-        }
-        m_sync.unlock();
-
-        if (false ==  m_imagesList.isEmpty())
-        {
-            QImage image = QImage(SAVE_FOLDER + "/" + *it);
-
-            emit handleImage(image);
-
-            ++it;
-            if (m_imagesList.constEnd() == it)
-            {
-                qDebug() << Q_FUNC_INFO << "reached end of list";
-                it = m_imagesList.constBegin();
-            }
+            qDebug() << Q_FUNC_INFO << "reached end of list";
+            m_imageIt = m_imagesList.constBegin();
         }
         qApp->processEvents();
-        sleep(3);
     }
 }
 
@@ -73,24 +70,19 @@ void SlideShow::stopGrabbing()
 void SlideShow::pause()
 {
     qDebug() << Q_FUNC_INFO;
-    m_sync.lock();
-    m_pause = true;
-    m_sync.unlock();
+    m_running = false;
 }
 
 void SlideShow::resume()
 {
     qDebug() << Q_FUNC_INFO;
-    m_sync.lock();
-    m_pause = false;
     m_running = true;
-    m_sync.unlock();
-    m_pauseCond.wakeAll();
 }
 
 void SlideShow::addImageToList(const QString& filename)
 {
     qDebug() << Q_FUNC_INFO << "Filename:" << filename;
     m_imagesList.append(filename);
-    qDebug() << Q_FUNC_INFO << "List size:" << QString(m_imagesList.size());
+    qDebug() << Q_FUNC_INFO << "List size:" << QString::number(m_imagesList.size());
 }
+

@@ -1,8 +1,7 @@
 #ifndef SLIDESHOW_H
 #define SLIDESHOW_H
 
-#include <QtCore/QMutex>
-#include <QtCore/QWaitCondition>
+#include <QtCore/QTimer>
 #include <QtGui/QImage>
 
 class SlideShow : public QObject
@@ -16,14 +15,17 @@ public:
     void resume();
     void pause();
 
+    void addImageToList(const QString& filename);
+
 private:
     bool m_running;
     bool m_pause;
     unsigned char *m_imageBuffer;
-    QMutex m_sync;
-    QWaitCondition m_pauseCond;
 
     QStringList m_imagesList;
+    QStringList::ConstIterator m_imageIt;
+
+    QTimer *m_timer;
 
 signals:
     void handleImage(QImage &image);
@@ -33,7 +35,6 @@ public slots:
     void grabImages();
     void stopGrabbing();
 
-    void addImageToList(const QString& filename);
 };
 
 #endif // SLIDESHOW_H

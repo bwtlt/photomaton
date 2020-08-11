@@ -3,7 +3,7 @@
 
 #include <raspicam/raspicam.h>
 #include <QtGui/QImage>
-#include <QtGui/QMutex>
+#include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
 
 class VideoStream : public QObject

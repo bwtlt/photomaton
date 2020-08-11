@@ -39,7 +39,6 @@ MainWindow::~MainWindow()
 void MainWindow::startPhotomaton()
 {
     qDebug() << Q_FUNC_INFO;
-    m_cameraWorkerThread = new QThread;
     m_cameraWorker = new VideoStream;
     m_slideShow = new SlideShow;
 
@@ -54,12 +53,8 @@ void MainWindow::startPhotomaton()
         return;
     }
 
-    m_cameraWorker->moveToThread(m_cameraWorkerThread);
 
-    connect(m_cameraWorkerThread, SIGNAL(started()), m_cameraWorker, SLOT(grabImages()));
-    connect(m_cameraWorker, SIGNAL(finished()), m_cameraWorkerThread, SLOT(quit()));
     connect(m_cameraWorker, SIGNAL(finished()), m_cameraWorker, SLOT(deleteLater()));
-    connect(m_cameraWorkerThread, SIGNAL(finished()), m_cameraWorkerThread, SLOT(deleteLater()));
     connect(m_cameraWorker, SIGNAL(finished()), this, SLOT(cameraFinished()));
     connect(m_cameraWorker, SIGNAL(handleImage(QImage &)), this, SLOT(handleCameraImage(QImage &)));
 
@@ -70,8 +65,6 @@ void MainWindow::startPhotomaton()
     connect(&GPIO::Instance(), SIGNAL(cancelBtnPressed()), this, SLOT(cancelBtnPressed()));
     connect(&GPIO::Instance(), SIGNAL(leftBtnPressed()), this, SLOT(leftBtnPressed()));
     connect(&GPIO::Instance(), SIGNAL(rightBtnPressed()), this, SLOT(rightBtnPressed()));
-
-    m_cameraWorkerThread->start();
 
     m_cameraRunning = true;
     m_slideShowRunning = false;
@@ -153,8 +146,9 @@ void MainWindow::resumePreview()
 {
     qDebug() << Q_FUNC_INFO;
     m_cameraWorker->resume();
+    m_cameraWorker->setRefreshInterval(FAST_FRAMERATE);
     m_cameraRunning = true;
-    m_slideShow->resume();
+    m_slideShow->pause();
     m_slideShowRunning = false;
     m_currentState = STATE_PREVIEW;
 
@@ -171,6 +165,7 @@ void MainWindow::startSlideShow()
 {
     qDebug() << Q_FUNC_INFO;
     m_cameraWorker->resume();
+    m_cameraWorker->setRefreshInterval(SLOW_FRAMERATE);
     m_cameraRunning = true;
 
     m_slideShow->resume();

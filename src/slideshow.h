@@ -4,6 +4,8 @@
 #include <QtCore/QTimer>
 #include <QtGui/QImage>
 
+static const unsigned int SLIDESHOW_PERIOD = 3000U;
+
 class SlideShow : public QObject
 {
     Q_OBJECT
@@ -19,7 +21,6 @@ public:
 
 private:
     bool m_running;
-    bool m_pause;
     unsigned char *m_imageBuffer;
 
     QStringList m_imagesList;

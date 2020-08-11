@@ -11,8 +11,7 @@ static unsigned int CAPTURE_WIDTH = 1280;
 static unsigned int CAPTURE_HEIGHT = 720;
 
 VideoStream::VideoStream() :
-    m_running(false),
-    m_pause(false)
+    m_running(false)
 {
     qRegisterMetaType<QImage>("QImage&");
     m_imageBuffer = new unsigned char[m_camera.getImageTypeSize(raspicam::RASPICAM_FORMAT_RGB)];
@@ -35,6 +34,11 @@ bool VideoStream::openCamera()
         sleep(3); // wait for camera to stabilize
         m_running = true;
         m_camera.setCaptureSize(CAPTURE_WIDTH, CAPTURE_HEIGHT);
+
+        m_timer = new QTimer(this);
+        connect(m_timer, SIGNAL(timeout()), this, SLOT(grabImages()));
+        m_timer->start(FAST_FRAMERATE);
+
         qDebug() << Q_FUNC_INFO << "Camera opened";
     }
 
@@ -43,15 +47,8 @@ bool VideoStream::openCamera()
 
 void VideoStream::grabImages()
 {
-    while(m_running)
+    if (true == m_running)
     {
-        m_sync.lock();
-        if(m_pause)
-        {
-            m_pauseCond.wait(&m_sync);
-        }
-        m_sync.unlock();
-
         m_camera.grab();
         m_camera.retrieve(m_imageBuffer, raspicam::RASPICAM_FORMAT_IGNORE);
 
@@ -63,7 +60,6 @@ void VideoStream::grabImages()
         emit handleImage(image);
 
         qApp->processEvents();
-        usleep(100);
     }
 }
 
@@ -77,22 +73,22 @@ void VideoStream::stopGrabbing()
 void VideoStream::pause()
 {
     qDebug() << Q_FUNC_INFO;
-    m_sync.lock();
-    m_pause = true;
-    m_sync.unlock();
+    m_running = false;
 }
 
 void VideoStream::resume()
 {
     qDebug() << Q_FUNC_INFO;
-    m_sync.lock();
-    m_pause = false;
-    m_sync.unlock();
-    m_pauseCond.wakeAll();
+    m_running = true;
 }
 
 void VideoStream::setEffect(raspicam::RASPICAM_IMAGE_EFFECT effect)
 {
     qDebug() << Q_FUNC_INFO << "Effect:" << QString(effect);
     m_camera.setImageEffect(effect);
+}
+
+void VideoStream::setRefreshInterval(unsigned int interval)
+{
+    m_timer->setInterval(interval);
 }

@@ -3,8 +3,10 @@
 
 #include <raspicam/raspicam.h>
 #include <QtGui/QImage>
-#include <QtCore/QMutex>
-#include <QtCore/QWaitCondition>
+#include <QtCore/QTimer>
+
+static const unsigned int FAST_FRAMERATE = 50U;
+static const unsigned int SLOW_FRAMERATE = 300U;
 
 class VideoStream : public QObject
 {
@@ -17,15 +19,16 @@ public:
     void resume();
     void pause();
 
+    void setRefreshInterval(unsigned int interval);
+
     void setEffect(raspicam::RASPICAM_IMAGE_EFFECT effect);
 
 private:
     raspicam::RaspiCam m_camera;
     bool m_running;
-    bool m_pause;
     unsigned char *m_imageBuffer;
-    QMutex m_sync;
-    QWaitCondition m_pauseCond;
+
+    QTimer *m_timer;
 
 signals:
     void handleImage(QImage &image);

@@ -12,8 +12,7 @@
 #include <unistd.h>
 
 SlideShow::SlideShow() :
-    m_running(false),
-    m_pause(false)
+    m_running(false)
 {
     qRegisterMetaType<QImage>("QImage&");
 }
@@ -32,11 +31,12 @@ bool SlideShow::init()
     QDir directory(SAVE_FOLDER);
     directory.setNameFilters(QStringList()<<"*.png");
     m_imagesList = directory.entryList();
+
     qDebug() << Q_FUNC_INFO << QString::number(m_imagesList.size()) << "images in slideshow";
 
     m_imageIt = m_imagesList.constBegin();
 
-    m_timer->start(2000);
+    m_timer->start(SLIDESHOW_PERIOD);
     return true;
 }
 

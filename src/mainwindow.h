@@ -8,7 +8,6 @@
 #include "imgprocessing.h"
 
 #include <QtWidgets/QMainWindow>
-#include <QtCore/QThread>
 
 namespace Ui {
 class MainWindow;
@@ -29,8 +28,6 @@ private:
     QFont font;
     bool m_cameraRunning;
     bool m_slideShowRunning;
-
-    QThread *m_cameraWorkerThread;
 
     VideoStream *m_cameraWorker;
     SlideShow *m_slideShow;

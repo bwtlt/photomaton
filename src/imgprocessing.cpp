@@ -24,7 +24,16 @@ void toSepia(Image& source, Image& destination)
     QImage qImg = source.getQImage();
     cv::Mat input(qImg.height(), qImg.width(), CV_8UC3, static_cast<uchar*>(qImg.bits()), qImg.bytesPerLine());
 
-    QImage dest(static_cast<const uchar*>(input.data), input.cols, input.rows, input.step, QImage::Format_RGB888);
+    cv::Mat output;
+    cv::Mat kernel =
+        (cv::Mat_<float>(3, 3)
+            <<
+            0.272, 0.534, 0.131,
+            0.349, 0.686, 0.168,
+            0.393, 0.769, 0.189);
+    cv::transform(input, output, kernel);
+
+    QImage dest(static_cast<const uchar*>(output.data), output.cols, output.rows, output.step, QImage::Format_RGB888);
     dest.bits();
 
     destination.setQImage(dest);

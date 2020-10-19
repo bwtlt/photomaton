@@ -3,3 +3,4 @@
 *.pro.user
 **/*.swp
 .vscode/c_cpp_properties.json
+misc/Thumbs.db

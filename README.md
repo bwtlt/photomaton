@@ -1,1 +1,2 @@
-# photomaton2
+# Pi-Photomaton
+## Raspberry Pi Photobooth

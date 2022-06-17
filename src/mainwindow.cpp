@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "imgprocessing.h"
 #include "utils.h"
 
 #include <QtGui/QPixmap>
@@ -8,6 +7,8 @@
 #include <QtGui/QFontDatabase>
 
 #include <unistd.h>
+
+#define SLIDESHOW_TIMEOUT 60000
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -20,11 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle("Photomaton");
 
     ui->preview->setVisible(false);
-    ui->effect1->setVisible(false);
-    ui->effect2->setVisible(false);
-    ui->effect3->setVisible(false);
 
-    int id = QFontDatabase::addApplicationFont("/home/pi/photomaton2/misc/CaviarDreams.ttf");
+    int id = QFontDatabase::addApplicationFont("/home/pi/photomaton/misc/CaviarDreams.ttf");
     QString family = QFontDatabase::applicationFontFamilies(id).at(0);
     font = QFont(family, 32);
 
@@ -65,6 +63,10 @@ void MainWindow::startPhotomaton()
     connect(&GPIO::Instance(), SIGNAL(cancelBtnPressed()), this, SLOT(cancelBtnPressed()));
     connect(&GPIO::Instance(), SIGNAL(leftBtnPressed()), this, SLOT(leftBtnPressed()));
     connect(&GPIO::Instance(), SIGNAL(rightBtnPressed()), this, SLOT(rightBtnPressed()));
+
+    m_idleTimer = new QTimer(this);
+    connect(m_idleTimer, SIGNAL(timeout()), this, SLOT(idleTimedOut()));
+    m_idleTimer->start(SLIDESHOW_TIMEOUT);
 
     m_cameraRunning = true;
     m_slideShowRunning = false;
@@ -128,17 +130,7 @@ void MainWindow::captureImage()
     ui->image->setPixmap(QPixmap::fromImage(m_rawImage.getQImage()));
     m_image = m_rawImage;
 
-    ui->helpText->setText("Choisissez un effet et validez");
-
-    ui->effect1->setPixmap(QPixmap::fromImage(QImage("/home/pi/photomaton2/misc/sepia_effect.png")));
-    ui->effect2->setPixmap(QPixmap::fromImage(m_rawImage.getQImage()));
-    ui->effect2->setScaledContents(true);
-    ui->effect3->setPixmap(QPixmap::fromImage(QImage("/home/pi/photomaton2/misc/bw_effect.png")));
-
-    ui->effect1->setVisible(true);
-    ui->effect2->setVisible(true);
-    ui->effect3->setVisible(true);
-
+    ui->helpText->setText("Si la photo vous convient, validez");
     this->repaint();
 }
 
@@ -150,13 +142,12 @@ void MainWindow::resumePreview()
     m_cameraRunning = true;
     m_slideShow->pause();
     m_slideShowRunning = false;
+    m_idleTimer->stop();
+    m_idleTimer->start(SLIDESHOW_TIMEOUT);
     m_currentState = STATE_PREVIEW;
 
     ui->helpText->setText("Appuyez sur le bouton pour prendre une photo");
     ui->preview->setVisible(false);
-    ui->effect1->setVisible(false);
-    ui->effect2->setVisible(false);
-    ui->effect3->setVisible(false);
 
     QApplication::processEvents();
 }
@@ -171,36 +162,18 @@ void MainWindow::startSlideShow()
     m_slideShow->resume();
     m_slideShowRunning = true;
 
+    m_idleTimer->stop();
+
     m_currentState = STATE_SLIDESHOW;
     ui->preview->setVisible(true);
     ui->helpText->setText("Appuyez sur un bouton\npour quitter le mode diaporama");
-    ui->effect1->setVisible(false);
-    ui->effect2->setVisible(false);
-    ui->effect3->setVisible(false);
-}
-
-void MainWindow::applyFilter(eFilter filter)
-{
-    qDebug() << Q_FUNC_INFO << "Filter:" << QString(filter);
-    switch(filter)
-    {
-    case BLACK_AND_WHITE:
-	    toGray(m_rawImage, m_image);
-	    break;
-    case SEPIA:
-	    toSepia(m_rawImage, m_image);
-	    break;
-    default:
-	    break;
-    }
-    ui->image->setPixmap(QPixmap::fromImage(m_image.getQImage()));
-
-    this->repaint();
 }
 
 void MainWindow::saveImage()
 {
     qDebug() << Q_FUNC_INFO;
+    ui->helpText->setText("Veuillez patienter...");
+    this->repaint();
     m_image.save();
     m_slideShow->addImageToList(m_image.getSavePath());
 
@@ -269,7 +242,6 @@ void MainWindow::leftBtnPressed()
     case STATE_PREVIEW:
         break;
     case STATE_CAPTURESETTINGS:
-        applyFilter(BLACK_AND_WHITE);
         break;
     case STATE_FINAL:
         break;
@@ -292,12 +264,20 @@ void MainWindow::rightBtnPressed()
     case STATE_PREVIEW:
         break;
     case STATE_CAPTURESETTINGS:
-        applyFilter(SEPIA);
         break;
     case STATE_FINAL:
         break;
     default:
         assert(false);
         break;
+    }
+}
+
+void MainWindow::idleTimedOut()
+{
+    qDebug() << Q_FUNC_INFO;
+    if (!m_slideShowRunning)
+    {
+	    startSlideShow();
     }
 }

@@ -5,7 +5,6 @@
 #include "slideshow.h"
 #include "gpio.h"
 #include "image.h"
-#include "imgprocessing.h"
 
 #include <QtWidgets/QMainWindow>
 
@@ -45,11 +44,12 @@ private:
 
     State m_currentState;
 
+    QTimer* m_idleTimer;
+
 private:
     void captureImage();
     void resumePreview();
     void startSlideShow();
-    void applyFilter(eFilter filter);
     void saveImage();
 
 private slots:
@@ -61,6 +61,8 @@ private slots:
     void cancelBtnPressed();
     void leftBtnPressed();
     void rightBtnPressed();
+
+    void idleTimedOut();
 };
 
 #endif // MAINWINDOW_H

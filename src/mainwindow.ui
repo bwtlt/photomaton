@@ -146,61 +146,6 @@ color: rgb(255, 255, 255);</string>
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="effectsHLayout">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="effect1">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>190</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Effet 1</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="effect2">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>190</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Effet 2</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="effect3">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>190</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Effet 3</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
     </item>
    </layout>

@@ -6,7 +6,7 @@ TEMPLATE = app
 TARGET = photomaton2
 INCLUDEPATH += .
 QT += widgets
-LIBS += -lraspicam -lopencv_core -lopencv_imgproc -lwiringPi
+LIBS += -lraspicam -lwiringPi
 
 # The following define makes your compiler warn you if you use any
 # feature of Qt which has been marked as deprecated (the exact warnings
@@ -22,14 +22,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # Input
 HEADERS += src/gpio.h \
            src/image.h \
-           src/imgprocessing.h \
            src/mainwindow.h \
            src/videostream.h \
            src/slideshow.h \
            src/utils.h
 FORMS += src/mainwindow.ui
 SOURCES += src/gpio.cpp \
-           src/imgprocessing.cpp \
            src/image.cpp \
            src/main.cpp \
            src/mainwindow.cpp \

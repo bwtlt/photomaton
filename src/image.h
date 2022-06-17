@@ -3,7 +3,7 @@
 
 #include <QtGui/QImage>
 
-static const QString SAVE_FOLDER("/home/pi/photomaton2/saved_images");
+static const QString SAVE_FOLDER("/media/pi/Lecteur USB/photomaton/saved_images");
 
 class Image
 {
